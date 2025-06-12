@@ -1,0 +1,21 @@
+{
+  "is-main": true,
+  "import": [
+		{
+			"path": "Luna-Flow/linear-algebra/mutable",
+			"alias": "la"
+		},
+		{
+			"path": "Luna-Flow/linear-algebra/immut",
+			"alias": "ila"
+		},
+		{
+			"path": "moonbitlang/x/fs",
+			"alias": "fs"
+		},
+		{
+			"path": "moonbitlang/x/sys",
+			"alias": "sys"
+		}
+	]
+}
