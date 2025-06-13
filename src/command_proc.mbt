@@ -89,8 +89,10 @@ fn solve_to_string(argv : Array[String]) -> String raise Error {
   let raw = read_raw(pos, argv)
   if raw.contains("\n") {
     let sudoku_arr = data_slice(raw)
+    sudoku_arr.each(is_sudoku_file)
     sudoku_arr.map(solve).join("\n")
   } else {
+    is_sudoku_file(raw)
     solve(raw)
   }
 }
@@ -140,8 +142,10 @@ fn fmt_to_string(argv : Array[String]) -> String raise Error {
   let raw = read_raw(pos, argv)
   if raw.contains("\n") {
     let sudoku_arr = data_slice(raw)
+    sudoku_arr.each(is_sudoku_file)
     sudoku_arr.map(fmt).join("\n")
   } else {
+    is_sudoku_file(raw)
     fmt(raw)
   }
 }
