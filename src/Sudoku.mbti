@@ -1,0 +1,17 @@
+package "KCN-judu/Sudoku"
+
+// Values
+
+// Types and methods
+type ArgError
+
+type DataError
+
+type ErrorData
+
+type IOError
+
+// Type aliases
+
+// Traits
+
