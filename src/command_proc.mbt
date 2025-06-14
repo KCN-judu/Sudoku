@@ -12,19 +12,24 @@ let usage =
 
 ///|
 let notice =
-  #|  Use "sudoku help" to see the usage information.
+  #|Use "sudoku help" to see the usage information.
 
 ///|
 let commands : Map[String, Int] = {
   "help": 1,
   "solve": 2,
   "fmt": 2,
-  "export": 3,
+  "export": 4,
 }
 
 ///|
 fn check_command(argv : Array[String]) -> Unit raise ArgError {
   let len = argv.length() - 1
+  if len < 2 {
+    raise ArgError(
+      ErrorData::make("ArgError", "Invalid amount of arguments", position=0),
+    )
+  }
   let command = argv[1]
   if commands.contains(command) {
     if len != commands.get(command).unwrap() {
@@ -71,8 +76,7 @@ fn read_raw(pos : Int, argv : Array[String]) -> String raise Error {
 }
 
 ///|
-fn solve_to_string(argv : Array[String]) -> String raise Error {
-  let pos = 2
+fn solve_to_string(argv : Array[String], pos~ : Int = 2) -> String raise Error {
   guard check_file(pos, argv) else {
     raise IOError(
       ErrorData::make(
@@ -109,8 +113,7 @@ fn solve_handler(argv : Array[String]) -> Unit raise Error {
 }
 
 ///|
-fn fmt_to_string(argv : Array[String]) -> String raise Error {
-  let pos = 2
+fn fmt_to_string(argv : Array[String], pos~ : Int = 2) -> String raise Error {
   guard check_file(pos, argv) else {
     raise IOError(
       ErrorData::make(
@@ -155,7 +158,7 @@ fn fmt_handler(argv : Array[String]) -> Unit raise Error {
   try fmt_to_string(argv) catch {
     IOError(msg) => raise IOError(msg)
     DataError(msg) => raise DataError(msg)
-    _ => abort("An unknown error occurred")
+    _ => abort("An unknown error occurred.")
   } else {
     res => println(res)
   }
@@ -163,7 +166,48 @@ fn fmt_handler(argv : Array[String]) -> Unit raise Error {
 
 ///|
 fn export_handler(argv : Array[String]) -> Unit raise Error {
-  ...
+  let path = argv[2]
+  if path.is_blank() {
+    raise IOError(
+      ErrorData::make("IOError", "Invalid file end with '/'.", position=2),
+    )
+  }
+  if path.rev_find("/") is Some(x) {
+    if x == path.length() - 1 {
+      raise IOError(
+        ErrorData::make("IOError", "Invalid file end with '/'.", position=2),
+      )
+    }
+    let dir = path.charcodes(start=0, end=x).to_string()
+    try is_dir(dir) catch {
+      @fs.IOError(_) =>
+        create_dir(dir) catch {
+          @fs.IOError(msg) =>
+            raise IOError(ErrorData::make("IOError", "\{msg}", position=2))
+          _ => abort("An unknown error occurred.")
+        }
+      _ => abort("An unknown error occurred.")
+    } else {
+      b => ignore(b)
+    }
+  }
+  fn exp(str : String) -> Unit raise IOError {
+    write_string_to_file(path, str) catch {
+      @fs.IOError(msg) =>
+        raise IOError(ErrorData::make("IOError", "\{msg}", position=2))
+      _ => abort("An unknown error occurred.")
+    }
+  }
+
+  if argv[3] == "solve" {
+    exp(solve_to_string(argv, pos=4))
+  } else if argv[3] == "fmt" {
+    exp(fmt_to_string(argv, pos=4))
+  } else {
+    raise ArgError(
+      ErrorData::make("ArgError", "Invalid command: '\{argv[3]}'", position=3),
+    )
+  }
 }
 
 ///|

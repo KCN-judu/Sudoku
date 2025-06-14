@@ -6,10 +6,6 @@
 			"alias": "la"
 		},
 		{
-			"path": "Luna-Flow/linear-algebra/immut",
-			"alias": "ila"
-		},
-		{
 			"path": "moonbitlang/x/fs",
 			"alias": "fs"
 		},

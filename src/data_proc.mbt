@@ -25,18 +25,18 @@ fn raw_to_matrix(raw : String) -> Matrix[Int] {
   Matrix::from_array(9, 9, raw.to_array().map(get_num))
 }
 
-///|
-fn matrix_to_raw(matrix : Matrix[Int]) -> String {
-  fn get_char(i : Int) -> Char {
-    if i == 0 {
-      return ' '
-    } else {
-      return (i + '1'.to_int()).unsafe_to_char()
-    }
-  }
+// ///|
+// fn matrix_to_raw(matrix : Matrix[Int]) -> String {
+//   fn get_char(i : Int) -> Char {
+//     if i == 0 {
+//       return ' '
+//     } else {
+//       return (i + '1'.to_int()).unsafe_to_char()
+//     }
+//   }
 
-  String::from_array(matrix.to_array().map(get_char))
-}
+//   String::from_array(matrix.to_array().map(get_char))
+// }
 
 ///|
 fn matrix_to_string(matrix : Matrix[Int]) -> String {

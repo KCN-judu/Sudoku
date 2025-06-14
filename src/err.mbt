@@ -36,10 +36,10 @@ fn locate_arg(argv : Array[String], position : Int) -> (Int, Int) {
   if position == 0 {
     return (0, argv[0].length())
   } else {
-    for i in 0..<(position - 1) {
+    for i in 0..<position {
       count += argv[i].length() + 1
     }
-    return (count, count + argv[position].length())
+    return (count - 1, count + argv[position].length() - 1)
   }
 }
 
@@ -51,9 +51,17 @@ fn ErrorData::to_string(self : ErrorData, argv : Array[String]) -> String {
     return err_msg_body
   } else {
     let (start, end) = locate_arg(argv, position)
+    fn start_() -> Int {
+      if start == 0 {
+        start
+      } else {
+        start + 1
+      }
+    }
+
     let err_msg_header =
       $|\{args_to_string(argv)}
-      $|\{String::make(start + 1, ' ')}\{String::make(end - start, '^')}
+      $|\{String::make(start_(), ' ')}\{String::make(end - start, '^')}
     return "\{err_msg_header}\n\{err_msg_body}"
   }
 }
