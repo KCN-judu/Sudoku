@@ -55,7 +55,6 @@ fn check_file(pos : Int, argv : Array[String]) -> Bool raise Error {
       raise IOError(
         ErrorData::make("IOError", "\{msg}: \{argv[pos]}", position=pos),
       )
-    _ => abort("An unknown error occurred")
   } else {
     res => return res
   }
@@ -69,7 +68,6 @@ fn read_raw(pos : Int, argv : Array[String]) -> String raise Error {
       raise IOError(
         ErrorData::make("IOError", "\{msg}: \{argv[pos]}", position=pos),
       )
-    _ => abort("An unknown error occurred")
   } else {
     res => return res
   }
@@ -184,9 +182,7 @@ fn export_handler(argv : Array[String]) -> Unit raise Error {
         create_dir(dir) catch {
           @fs.IOError(msg) =>
             raise IOError(ErrorData::make("IOError", "\{msg}", position=2))
-          _ => abort("An unknown error occurred.")
         }
-      _ => abort("An unknown error occurred.")
     } else {
       b => ignore(b)
     }
@@ -195,7 +191,6 @@ fn export_handler(argv : Array[String]) -> Unit raise Error {
     write_string_to_file(path, str) catch {
       @fs.IOError(msg) =>
         raise IOError(ErrorData::make("IOError", "\{msg}", position=2))
-      _ => abort("An unknown error occurred.")
     }
   }
 
