@@ -39,9 +39,7 @@ fn mask_algorithm(sudoku : Matrix[Int]) -> Matrix[Int] {
       let count = Array::make(9, (0, -1))
       for i in 0..<9 {
         if mask[row][i].size() != 0 {
-          mask[row][i].each(x => {
-            count[x - 1] = (count[x - 1].0 + 1, i)
-          })
+          mask[row][i].each(x => count[x - 1] = (count[x - 1].0 + 1, i))
         }
       }
       let mut changed = false
@@ -61,9 +59,7 @@ fn mask_algorithm(sudoku : Matrix[Int]) -> Matrix[Int] {
       let count = Array::make(9, (0, -1))
       for i in 0..<9 {
         if mask[i][col].size() != 0 {
-          mask[i][col].each(x => {
-            count[x - 1] = (count[x - 1].0 + 1, i)
-          })
+          mask[i][col].each(x => count[x - 1] = (count[x - 1].0 + 1, i))
         }
       }
       let mut changed = false
@@ -86,9 +82,7 @@ fn mask_algorithm(sudoku : Matrix[Int]) -> Matrix[Int] {
           let r = i + box_row * 3
           let c = j + box_col * 3
           if mask[r][c].size() != 0 {
-            mask[r][c].each(x => {
-              count[x - 1] = (count[x - 1].0 + 1, (r, c))
-            })
+            mask[r][c].each(x => count[x - 1] = (count[x - 1].0 + 1, (r, c)))
           }
         }
       }
