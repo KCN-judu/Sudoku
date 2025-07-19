@@ -12,6 +12,10 @@
 		{
 			"path": "moonbitlang/x/sys",
 			"alias": "sys"
+		},
+		{
+			"path": "KCN-judu/err_marker",
+			"alias": "em"
 		}
 	]
 }

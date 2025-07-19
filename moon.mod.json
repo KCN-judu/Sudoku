@@ -2,8 +2,9 @@
   "name": "KCN-judu/Sudoku",
   "version": "0.1.0",
   "deps": {
-    "moonbitlang/x": "0.4.28",
-    "Luna-Flow/linear-algebra": "0.1.5-beta-1"
+    "Luna-Flow/linear-algebra": "0.1.5-beta-1",
+    "moonbitlang/x": "0.4.29",
+    "KCN-judu/err_marker": "0.1.2"
   },
   "readme": "README.md",
   "repository": "",

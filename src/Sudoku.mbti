@@ -7,8 +7,6 @@ type ArgError
 
 type DataError
 
-type ErrorData
-
 type IOError
 
 // Type aliases

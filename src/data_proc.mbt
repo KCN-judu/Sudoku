@@ -2,7 +2,11 @@
 fn is_sudoku_file(data : String) -> Unit raise DataError {
   if data.length() != 81 {
     raise DataError(
-      ErrorData::make("data_error", "This is not a valid Sudoku file."),
+      err_wrapper(
+        "DataError",
+        "Invalid Sudoku file length: \{data.length()}",
+        0,
+      ),
     )
   }
 }
@@ -24,19 +28,6 @@ fn raw_to_matrix(raw : String) -> Matrix[Int] {
 
   Matrix::from_array(9, 9, raw.to_array().map(get_num))
 }
-
-// ///|
-// fn matrix_to_raw(matrix : Matrix[Int]) -> String {
-//   fn get_char(i : Int) -> Char {
-//     if i == 0 {
-//       return ' '
-//     } else {
-//       return (i + '1'.to_int()).unsafe_to_char()
-//     }
-//   }
-
-//   String::from_array(matrix.to_array().map(get_char))
-// }
 
 ///|
 fn matrix_to_string(matrix : Matrix[Int]) -> String {

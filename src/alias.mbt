@@ -12,3 +12,9 @@ fnalias @fs.(
 
 ///|
 fnalias @sys.get_cli_args
+
+///|
+typealias @em.ErrorData
+
+///|
+typealias @em.Sequence
