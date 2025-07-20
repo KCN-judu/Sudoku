@@ -102,10 +102,10 @@ fn fmt_to_string(argv : Array[String], pos~ : Int = 2) -> String raise Error {
   }
   fn fmt(raw : String) -> String {
     fn get_num(c : Char) -> Char {
-      if c >= '1' && c <= '9' {
-        return c
+      if c is ('1'..='9') {
+        c
       } else {
-        return ' '
+        ' '
       }
     }
 

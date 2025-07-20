@@ -123,11 +123,7 @@ fn candidate_algorithm(sudoku : Matrix[Int]) -> Matrix[Int] {
   }
 
   fn solve() -> Bool {
-    if not(fill_sudoku() || find_unique()) {
-      false
-    } else {
-      true
-    }
+    fill_sudoku() || find_unique()
   }
 
   while solve() {
