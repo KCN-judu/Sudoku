@@ -114,12 +114,10 @@ fn candidate_algorithm(sudoku : Matrix[Int]) -> Matrix[Int] {
   fn fill_sudoku() -> Bool {
     update_candidate()
     let mut changed = false
-    candidate.eachij((i, j, c) => {
-      if c.size() == 1 {
-        sudoku[i][j] = c.to_array()[0]
-        c.clear()
-        changed = true
-      }
+    candidate.eachij((i, j, c) => if c.size() == 1 {
+      sudoku[i][j] = c.to_array()[0]
+      c.clear()
+      changed = true
     })
     changed
   }
