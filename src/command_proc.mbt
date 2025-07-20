@@ -70,7 +70,7 @@ fn solve_to_string(argv : Array[String], pos~ : Int = 2) -> String raise Error {
     raise IOError(err_wrapper("IOError", "File not found: \{argv[pos]}", pos))
   }
   fn solve(raw : String) -> String {
-    matrix_to_string(mask_algorithm(raw_to_matrix(raw)))
+    matrix_to_string(candidate_algorithm(raw_to_matrix(raw)))
   }
 
   let raw = read_raw(pos, argv)
