@@ -1,12 +1,8 @@
 ///|
-fn is_sudoku_file(data : String) -> Unit raise DataError {
+fn is_sudoku_file(data : String, pos~ : Int = 2) -> Unit raise DataError {
   if data.length() != 81 {
     raise DataError(
-      err_wrapper(
-        "DataError",
-        "Invalid Sudoku file length: \{data.length()}",
-        0,
-      ),
+      data_err_wrapper("Invalid Sudoku file length: \{data.length()}", pos),
     )
   }
 }
