@@ -1,0 +1,74 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: fmt, check, interface, CLI
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install moonbit (latest, unpinned)
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: update registry
+        run: moon update
+
+      - name: format
+        run: |
+          moon fmt
+          git diff --exit-code
+
+      - name: check
+        run: moon check --target all --deny-warn
+
+      - name: public interface
+        run: |
+          moon info
+          git diff --exit-code
+
+      - name: build and run the CLI
+        run: |
+          sh build.sh
+          ./build/sudoku solve examples/easy.txt
+
+  test:
+    name: test (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm, wasm-gc, js, native]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install moonbit (latest, unpinned)
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: update registry
+        run: moon update
+
+      - name: test (debug)
+        run: moon test --target ${{ matrix.target }}
+
+      - name: test (release)
+        run: moon test --target ${{ matrix.target }} --release
