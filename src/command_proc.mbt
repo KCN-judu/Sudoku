@@ -166,36 +166,40 @@ fn fmt_handler(argv : Array[String]) -> Unit raise Error {
 
 ///|
 fn export_handler(argv : Array[String]) -> Unit raise Error {
-  let path = argv[2]
+  // `sudoku export <file> <solve|fmt> <output>`: argv[2] is read, argv[4] is
+  // written (#12). The content is computed first, so a bad mode or input
+  // writes nothing.
+  let content = match argv[3] {
+    "solve" => solve_to_string(argv, pos=2)
+    "fmt" => fmt_to_string(argv, pos=2)
+    mode =>
+      raise ArgError(arg_err_wrapper("Invalid export command: '\{mode}'", 3))
+  }
+  let path = argv[4]
   if path.is_blank() {
-    raise IOError(io_err_wrapper("File path cannot be empty", 2))
+    raise IOError(io_err_wrapper("File path cannot be empty", 4))
+  }
+  if path == argv[2] {
+    raise IOError(
+      io_err_wrapper("The output file must differ from the input file", 4),
+    )
   }
   if path.rev_find("/") is Some(x) {
     if x == path.length() - 1 {
-      raise IOError(io_err_wrapper("Invalid file end with '/'.", 2))
+      raise IOError(io_err_wrapper("Invalid file end with '/'.", 4))
     }
     let dir = path.unsafe_substring(start=0, end=x)
     try is_dir(dir) catch {
       @fs.IOError(_) =>
         create_dir(dir) catch {
-          @fs.IOError(msg) => raise IOError(io_err_wrapper("\{msg}", 2))
+          @fs.IOError(msg) => raise IOError(io_err_wrapper("\{msg}", 4))
         }
     } noraise {
       b => ignore(b)
     }
   }
-  fn exp(str : String) -> Unit raise IOError {
-    write_string_to_file(path, str) catch {
-      @fs.IOError(msg) => raise IOError(io_err_wrapper("\{msg}", 2))
-    }
-  }
-
-  if argv[3] == "solve" {
-    exp(solve_to_string(argv, pos=4))
-  } else if argv[3] == "fmt" {
-    exp(fmt_to_string(argv, pos=4))
-  } else {
-    raise ArgError(arg_err_wrapper("Invalid export command: '\{argv[3]}'", 3))
+  write_string_to_file(path, content) catch {
+    @fs.IOError(msg) => raise IOError(io_err_wrapper("\{msg}", 4))
   }
 }
 
