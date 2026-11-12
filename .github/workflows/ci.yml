@@ -47,6 +47,10 @@ jobs:
         run: |
           sh build.sh
           ./build/sudoku solve examples/easy.txt
+          # exit status: 2 without a command, 1 on an error (#13)
+          set +e
+          ./build/sudoku > /dev/null; test $? -eq 2 || exit 1
+          ./build/sudoku solve missing.txt > /dev/null; test $? -eq 1 || exit 1
 
   test:
     name: test (${{ matrix.target }})
