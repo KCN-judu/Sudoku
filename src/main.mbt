@@ -1,6 +1,6 @@
 ///|
 fn main {
-  let argv = get_cli_args()
+  let argv = @env.args()
   command_handler(argv) catch {
     ArgError(d) => println(err_msg_with_note(d, argv))
     IOError(d) => println(err_msg_with_note(d, argv))
