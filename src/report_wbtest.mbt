@@ -12,33 +12,42 @@ fn report_of(argv : Array[String]) -> String {
 
 ///|
 test "unknown command" {
-  inspect(report_of(["sudoku", "sovle", "a.txt"]), content=(
-    #|sudoku sovle a.txt
-    #|       ^^^^^
-    #|error[ArgError]: Unknown command 'sovle'
-    #|note: commands: solve, fmt, export, help
-    #|note: run `sudoku help` to see the usage
-  ))
+  inspect(
+    report_of(["sudoku", "sovle", "a.txt"]),
+    content=(
+      #|sudoku sovle a.txt
+      #|       ^^^^^
+      #|error[ArgError]: Unknown command 'sovle'
+      #|note: commands: solve, fmt, export, help
+      #|note: run `sudoku help` to see the usage
+    ),
+  )
 }
 
 ///|
 test "missing argument is a point after the last argument" {
-  inspect(report_of(["sudoku", "solve"]), content=(
-    #|sudoku solve
-    #|       -----^ expected <file>
-    #|error[ArgError]: Missing arguments for 'solve'
-    #|note: run `sudoku help` to see the usage
-  ))
+  inspect(
+    report_of(["sudoku", "solve"]),
+    content=(
+      #|sudoku solve
+      #|       -----^ expected <file>
+      #|error[ArgError]: Missing arguments for 'solve'
+      #|note: run `sudoku help` to see the usage
+    ),
+  )
 }
 
 ///|
 test "surplus arguments are marked together" {
-  inspect(report_of(["sudoku", "solve", "a", "b", "c"]), content=(
-    #|sudoku solve a b c
-    #|       -----   ^^^ unexpected
-    #|error[ArgError]: Too many arguments for 'solve'
-    #|note: run `sudoku help` to see the usage
-  ))
+  inspect(
+    report_of(["sudoku", "solve", "a", "b", "c"]),
+    content=(
+      #|sudoku solve a b c
+      #|       -----   ^^^ unexpected
+      #|error[ArgError]: Too many arguments for 'solve'
+      #|note: run `sudoku help` to see the usage
+    ),
+  )
 }
 
 ///|
