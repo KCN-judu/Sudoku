@@ -4,7 +4,7 @@ version = "0.1.0"
 
 import {
   "moonbitlang/x@0.5.7",
-  "KCN-judu/err_marker@0.1.4",
+  "KCN-judu/err_marker@0.2.0",
   "Luna-Flow/linear-algebra@0.5.3",
 }
 
