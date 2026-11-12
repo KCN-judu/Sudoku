@@ -6,3 +6,7 @@ import {
 }
 
 pkgtype(kind: "executable")
+
+options(
+  targets: { "export_wbtest.mbt": [ "native" ] },
+)
