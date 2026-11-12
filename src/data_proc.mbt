@@ -9,7 +9,22 @@ fn is_sudoku_file(data : String, pos~ : Int32 = 2) -> Unit raise DataError {
 
 ///|
 fn data_slice(raw : String) -> Array[String] {
-  raw.split("\n").to_array().map(v => v.to_owned())
+  // One puzzle per line; a trailing `\r` (CRLF files) and empty lines, such
+  // as the one after the final newline, are ignored (#13).
+  let out = []
+  for v in raw.split("\n") {
+    let line = v.to_owned()
+    let n = line.length()
+    let line = if n > 0 && line[n - 1] == '\r'.to_int().to_uint16() {
+      line.unsafe_substring(start=0, end=n - 1)
+    } else {
+      line
+    }
+    if !line.is_blank() {
+      out.push(line)
+    }
+  }
+  out
 }
 
 ///|

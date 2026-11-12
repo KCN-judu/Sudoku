@@ -205,6 +205,9 @@ fn export_handler(argv : Array[String]) -> Unit raise Error {
 
 ///|
 fn command_handler(argv : Array[String]) -> Unit raise Error {
+  guard argv.length() >= 2 else {
+    raise ArgError(arg_err_wrapper("Missing command", 1))
+  }
   let command = argv[1]
   if command == "help" {
     println(usage)
