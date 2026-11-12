@@ -15,7 +15,7 @@ let notice =
   #|Use "sudoku help" to see the usage information.
 
 ///|
-let commands : Map[String, Int] = {
+let commands : Map[String, Int32] = {
   "help": 1,
   "solve": 2,
   "fmt": 2,
@@ -23,24 +23,24 @@ let commands : Map[String, Int] = {
 }
 
 ///|
-fn err_wrapper(e_type : String, e_msg : String, e_pos : Int) -> ErrorData {
+fn err_wrapper(e_type : String, e_msg : String, e_pos : Int32) -> ErrorData {
   ErrorData::make(err_type=Some(e_type), e_msg, err_pos=e_pos)
 }
 
 ///|
-let arg_err_wrapper : (String, Int) -> ErrorData = (msg, pos) => err_wrapper(
-  "ArgError", msg, pos,
-)
+let arg_err_wrapper : (String, Int32) -> ErrorData = (msg, pos) => {
+  err_wrapper("ArgError", msg, pos)
+}
 
 ///|
-let io_err_wrapper : (String, Int) -> ErrorData = (msg, pos) => err_wrapper(
-  "IOError", msg, pos,
-)
+let io_err_wrapper : (String, Int32) -> ErrorData = (msg, pos) => {
+  err_wrapper("IOError", msg, pos)
+}
 
 ///|
-let data_err_wrapper : (String, Int) -> ErrorData = (msg, pos) => err_wrapper(
-  "DataError", msg, pos,
-)
+let data_err_wrapper : (String, Int32) -> ErrorData = (msg, pos) => {
+  err_wrapper("DataError", msg, pos)
+}
 
 ///|
 fn check_command(argv : Array[String]) -> Unit raise ArgError {
@@ -64,7 +64,7 @@ fn check_command(argv : Array[String]) -> Unit raise ArgError {
 }
 
 ///|
-fn check_file(pos : Int, argv : Array[String]) -> Bool raise Error {
+fn check_file(pos : Int32, argv : Array[String]) -> Bool raise Error {
   try is_file(argv[pos]) catch {
     @fs.IOError(msg) =>
       raise IOError(io_err_wrapper("\{msg}: \{argv[pos]}", pos))
@@ -75,7 +75,7 @@ fn check_file(pos : Int, argv : Array[String]) -> Bool raise Error {
 }
 
 ///|
-fn read_raw(pos : Int, argv : Array[String]) -> String raise Error {
+fn read_raw(pos : Int32, argv : Array[String]) -> String raise Error {
   try read_file_to_string(argv[pos]) catch {
     @fs.IOError(msg) =>
       raise IOError(io_err_wrapper("\{msg}: \{argv[pos]}", pos))
@@ -85,7 +85,10 @@ fn read_raw(pos : Int, argv : Array[String]) -> String raise Error {
 }
 
 ///|
-fn solve_to_string(argv : Array[String], pos~ : Int = 2) -> String raise Error {
+fn solve_to_string(
+  argv : Array[String],
+  pos~ : Int32 = 2,
+) -> String raise Error {
   guard check_file(pos, argv) else {
     raise IOError(io_err_wrapper("File not found: \{argv[pos]}", pos))
   }
@@ -116,13 +119,13 @@ fn solve_handler(argv : Array[String]) -> Unit raise Error {
 }
 
 ///|
-fn fmt_to_string(argv : Array[String], pos~ : Int = 2) -> String raise Error {
+fn fmt_to_string(argv : Array[String], pos~ : Int32 = 2) -> String raise Error {
   guard check_file(pos, argv) else {
     raise IOError(io_err_wrapper("File not found: \{argv[pos]}", pos))
   }
   fn fmt(raw : String) -> String {
     fn get_num(c : Char) -> Char {
-      if c is ('1'..='9') {
+      if c is ('1'..<='9') {
         c
       } else {
         ' '
@@ -171,7 +174,7 @@ fn export_handler(argv : Array[String]) -> Unit raise Error {
     if x == path.length() - 1 {
       raise IOError(io_err_wrapper("Invalid file end with '/'.", 2))
     }
-    let dir = path.charcodes(start=0, end=x).to_string()
+    let dir = path.unsafe_substring(start=0, end=x)
     try is_dir(dir) catch {
       @fs.IOError(_) =>
         create_dir(dir) catch {

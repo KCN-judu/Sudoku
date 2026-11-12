@@ -1,0 +1,8 @@
+import {
+  "Luna-Flow/linear-algebra/mutable" @la,
+  "moonbitlang/x/fs",
+  "moonbitlang/core/env",
+  "KCN-judu/err_marker" @em,
+}
+
+pkgtype(kind: "executable")

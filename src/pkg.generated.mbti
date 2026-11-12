@@ -1,15 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
 package "KCN-judu/Sudoku"
 
 // Values
 
-// Types and methods
+// Errors
 type ArgError
 
 type DataError
 
 type IOError
 
+// Types and methods
+
 // Type aliases
 
 // Traits
-
