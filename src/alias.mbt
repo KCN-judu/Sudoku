@@ -11,4 +11,4 @@ using @fs {
 }
 
 ///|
-using @em {type ErrorData, type Sequence}
+using @em {type Report, type Mark, type Span, type Sequence}

@@ -1,20 +1,22 @@
 ///|
+/// Errors of the CLI. Each carries an err_marker report whose marks point at
+/// argument positions of `argv`; the report code is the error kind.
 suberror ArgError {
-  ArgError(ErrorData)
+  ArgError(Report)
 }
 
 ///|
 suberror IOError {
-  IOError(ErrorData)
+  IOError(Report)
 }
 
 ///|
 suberror DataError {
-  DataError(ErrorData)
+  DataError(Report)
 }
 
 ///|
-fn err_msg_with_note(err_data : ErrorData, argv : Array[String]) -> String {
-  let seq = Sequence::from_array(argv)
-  "\{err_data.mark(seq, marker = '^')}\n\{notice}"
+/// Renders an error report on the argument vector, with a hint to `help`.
+fn err_msg_with_note(report : Report, argv : Array[String]) -> String {
+  report.with_note(notice).render(Sequence::from_args(argv))
 }

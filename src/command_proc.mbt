@@ -11,56 +11,81 @@ let usage =
   #|    help: Usage information
 
 ///|
-let notice =
-  #|Use "sudoku help" to see the usage information.
+let notice = "run `sudoku help` to see the usage"
 
 ///|
-let commands : Map[String, Int32] = {
-  "help": 1,
-  "solve": 2,
-  "fmt": 2,
-  "export": 4,
+let commands : Map[String, Array[String]] = {
+  "help": [],
+  "solve": ["<file>"],
+  "fmt": ["<file>"],
+  "export": ["<file>", "<solve|fmt>", "<output>"],
 }
 
 ///|
-fn err_wrapper(e_type : String, e_msg : String, e_pos : Int32) -> ErrorData {
-  ErrorData::make(err_type=Some(e_type), e_msg, err_pos=e_pos)
+fn err_wrapper(e_type : String, e_msg : String, e_pos : Int32) -> Report {
+  Report::new(@em.Severity::Error, e_msg)
+  .with_code(e_type)
+  .with_mark(Mark::primary(Span::new(e_pos, e_pos + 1)))
 }
 
 ///|
-let arg_err_wrapper : (String, Int32) -> ErrorData = (msg, pos) => {
+let arg_err_wrapper : (String, Int32) -> Report = (msg, pos) => {
   err_wrapper("ArgError", msg, pos)
 }
 
 ///|
-let io_err_wrapper : (String, Int32) -> ErrorData = (msg, pos) => {
+let io_err_wrapper : (String, Int32) -> Report = (msg, pos) => {
   err_wrapper("IOError", msg, pos)
 }
 
 ///|
-let data_err_wrapper : (String, Int32) -> ErrorData = (msg, pos) => {
+let data_err_wrapper : (String, Int32) -> Report = (msg, pos) => {
   err_wrapper("DataError", msg, pos)
 }
 
 ///|
 fn check_command(argv : Array[String]) -> Unit raise ArgError {
-  let len = argv.length() - 1
-  if len < 2 {
-    raise ArgError(arg_err_wrapper("Invalid amount of arguments", 1))
-  }
   let command = argv[1]
-  if commands.contains(command) {
-    if len != commands.get(command).unwrap() {
-      raise ArgError(
-        arg_err_wrapper(
-          "Invalid amount of arguments for command '\{command}'",
-          1,
-        ),
-      )
-    }
-  } else {
-    raise ArgError(arg_err_wrapper("Unknown command '\{command}'", 1))
+  guard commands.get(command) is Some(params) else {
+    raise ArgError(
+      arg_err_wrapper("Unknown command '\{command}'", 1).with_note(
+        "commands: solve, fmt, export, help",
+      ),
+    )
   }
+  let given = argv.length() - 2
+  if given == params.length() {
+    return
+  }
+  // Every missing or surplus argument is marked in one report (#11).
+  let mut report = Report::new(
+      @em.Severity::Error,
+      if given < params.length() {
+        "Missing arguments for '\{command}'"
+      } else {
+        "Too many arguments for '\{command}'"
+      },
+    )
+    .with_code("ArgError")
+    .with_mark(Mark::secondary(Span::new(1, 2)))
+  if given < params.length() {
+    let missing = []
+    for k in given..<params.length() {
+      missing.push(params[k])
+    }
+    report = report.with_mark(
+      Mark::primary(
+        Span::point(argv.length()),
+        message="expected " + missing.join(" "),
+      ),
+    )
+  } else {
+    let first = 2 + params.length()
+    report = report.with_mark(
+      Mark::primary(Span::new(first, argv.length()), message="unexpected"),
+    )
+  }
+  raise ArgError(report)
 }
 
 ///|
@@ -167,27 +192,47 @@ fn fmt_handler(argv : Array[String]) -> Unit raise Error {
 ///|
 fn export_handler(argv : Array[String]) -> Unit raise Error {
   // `sudoku export <file> <solve|fmt> <output>`: argv[2] is read, argv[4] is
-  // written (#12). The content is computed first, so a bad mode or input
-  // writes nothing.
-  let content = match argv[3] {
-    "solve" => solve_to_string(argv, pos=2)
-    "fmt" => fmt_to_string(argv, pos=2)
-    mode =>
-      raise ArgError(arg_err_wrapper("Invalid export command: '\{mode}'", 3))
+  // written (#12). All argument problems are reported together (#11), and the
+  // content is computed before anything is written.
+  let input = argv[2]
+  let mode = argv[3]
+  let output = argv[4]
+  let problems : Array[Mark] = []
+  let input_exists = is_file(input) catch { _ => false }
+  if !input_exists {
+    problems.push(Mark::primary(Span::new(2, 3), message="no such file"))
   }
-  let path = argv[4]
-  if path.is_blank() {
-    raise IOError(io_err_wrapper("File path cannot be empty", 4))
-  }
-  if path == argv[2] {
-    raise IOError(
-      io_err_wrapper("The output file must differ from the input file", 4),
+  if mode != "solve" && mode != "fmt" {
+    problems.push(
+      Mark::primary(Span::new(3, 4), message="expected solve or fmt"),
     )
   }
+  if output.is_blank() {
+    problems.push(Mark::primary(Span::new(4, 5), message="empty path"))
+  } else if output == input {
+    problems.push(
+      Mark::primary(Span::new(4, 5), message="same file as the input"),
+    )
+  } else if output.has_suffix("/") {
+    problems.push(Mark::primary(Span::new(4, 5), message="not a file name"))
+  }
+  if !problems.is_empty() {
+    raise ArgError(
+      problems.fold(
+        init=Report::new(@em.Severity::Error, "Invalid export arguments").with_code(
+          "ArgError",
+        ),
+        (r, m) => r.with_mark(m),
+      ),
+    )
+  }
+  let content = if mode == "solve" {
+    solve_to_string(argv, pos=2)
+  } else {
+    fmt_to_string(argv, pos=2)
+  }
+  let path = output
   if path.rev_find("/") is Some(x) {
-    if x == path.length() - 1 {
-      raise IOError(io_err_wrapper("Invalid file end with '/'.", 4))
-    }
     let dir = path.unsafe_substring(start=0, end=x)
     try is_dir(dir) catch {
       @fs.IOError(_) =>
